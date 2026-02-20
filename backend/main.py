@@ -35,6 +35,11 @@ class Shipment(ShipmentCreate):
     status: str
     created_at: datetime
     tracking_number: str
+    
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
 
 # Root endpoint
 @app.get("/")
@@ -51,12 +56,14 @@ def create_shipment(shipment: ShipmentCreate):
     shipment_id = str(uuid.uuid4())[:8]
     tracking_number = f"CIT-{shipment_id.upper()}"
     
-    new_shipment = Shipment(
-        **shipment.dict(),
-        id=shipment_id,
-        status="created",
-        created_at=datetime.now(),
-        tracking_number=tracking_number
+shipment_data = shipment.dict()
+shipment_data.update({
+    'id': shipment_id,
+    'status': 'created',
+    'created_at': datetime.now(),
+    'tracking_number': tracking_number
+})
+new_shipment = Shipment(**shipment_data)
     )
     
     shipments_db.append(new_shipment)
