@@ -247,7 +247,7 @@
     </div>
 
     <script>
-        // API URL - we'll update this after deployment
+        // API URL - REPLACE THIS WITH YOUR RENDER URL
         const API_URL = 'https://citrus-export-api.onrender.com';
         
         // Create Shipment
@@ -272,16 +272,21 @@
                 
                 const result = await response.json();
                 
-                document.getElementById('shipmentMessage').innerHTML = `
-                    <div class="alert alert-success">
-                        <strong>Success!</strong><br>
-                        Tracking Number: <strong>${result.tracking_number}</strong><br>
-                        Shipment ID: ${result.id}<br>
-                        Status: ${result.status}
-                    </div>
-                `;
-                
-                document.getElementById('shipmentForm').reset();
+                if (response.ok) {
+                    document.getElementById('shipmentMessage').innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Success!</strong><br>
+                            Tracking Number: <strong>${result.tracking_number}</strong><br>
+                            Shipment ID: ${result.id}<br>
+                            Status: ${result.status}
+                        </div>
+                    `;
+                    document.getElementById('shipmentForm').reset();
+                } else {
+                    document.getElementById('shipmentMessage').innerHTML = `
+                        <div class="alert alert-error">Error: ${result.error || 'Unknown error'}</div>
+                    `;
+                }
                 
             } catch (error) {
                 document.getElementById('shipmentMessage').innerHTML = `
@@ -299,19 +304,25 @@
                 const response = await fetch(`${API_URL}/track/${trackingNum}`);
                 const result = await response.json();
                 
-                document.getElementById('trackingResult').innerHTML = `
-                    <div class="tracking-result">
-                        <h3>Tracking: ${result.tracking_number}</h3>
-                        <p><strong>Status:</strong> <span class="status-badge status-${result.status}">${result.status}</span></p>
-                        <p><strong>Location:</strong> ${result.location}</p>
-                        <p><strong>Last Update:</strong> ${new Date(result.last_update).toLocaleString()}</p>
-                        <hr>
-                        <h4>History:</h4>
-                        ${result.history.map(h => `
-                            <p>• ${h.status} - ${new Date(h.time).toLocaleString()}</p>
-                        `).join('')}
-                    </div>
-                `;
+                if (response.ok) {
+                    document.getElementById('trackingResult').innerHTML = `
+                        <div class="tracking-result">
+                            <h3>Tracking: ${result.tracking_number}</h3>
+                            <p><strong>Status:</strong> <span class="status-badge status-${result.status}">${result.status}</span></p>
+                            <p><strong>Location:</strong> ${result.location}</p>
+                            <p><strong>Last Update:</strong> ${new Date(result.last_update).toLocaleString()}</p>
+                            <hr>
+                            <h4>History:</h4>
+                            ${result.history.map(h => `
+                                <p>• ${h.status} - ${new Date(h.time).toLocaleString()}</p>
+                            `).join('')}
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('trackingResult').innerHTML = `
+                        <div class="alert alert-error">Error: ${result.error || 'Tracking number not found'}</div>
+                    `;
+                }
             } catch (error) {
                 document.getElementById('trackingResult').innerHTML = `
                     <div class="alert alert-error">Tracking error: ${error.message}</div>
@@ -331,18 +342,24 @@
                 
                 const result = await response.json();
                 
-                document.getElementById('documentResult').innerHTML = `
-                    <div class="alert alert-success">
-                        <strong>Document Generated!</strong><br>
-                        Invoice Number: ${result.invoice_number}<br>
-                        Type: ${result.type}<br>
-                        Status: ${result.status}
-                    </div>
-                    <div class="document-preview">
-                        <h4>Preview:</h4>
-                        <pre>${JSON.stringify(result.content, null, 2)}</pre>
-                    </div>
-                `;
+                if (response.ok) {
+                    document.getElementById('documentResult').innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>Document Generated!</strong><br>
+                            Invoice Number: ${result.invoice_number}<br>
+                            Type: ${result.type}<br>
+                            Status: ${result.status}
+                        </div>
+                        <div class="document-preview">
+                            <h4>Preview:</h4>
+                            <pre>${JSON.stringify(result.content, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('documentResult').innerHTML = `
+                        <div class="alert alert-error">Error: ${result.error || 'Failed to generate document'}</div>
+                    `;
+                }
             } catch (error) {
                 document.getElementById('documentResult').innerHTML = `
                     <div class="alert alert-error">Error: ${error.message}</div>
