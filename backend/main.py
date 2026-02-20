@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel
 from typing import Optional
 from datetime import datetime
 import uuid
@@ -30,8 +30,6 @@ class ShipmentCreate(BaseModel):
 
 
 class Shipment(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
-    
     exporter_name: str
     importer_name: str
     product: str
@@ -41,8 +39,13 @@ class Shipment(BaseModel):
     vessel_name: Optional[str] = None
     id: str
     status: str
-    created_at: datetime
+    created_at: str
     tracking_number: str
+    
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
 
 
 @app.get("/")
@@ -69,7 +72,7 @@ def create_shipment(shipment: ShipmentCreate):
         vessel_name=shipment.vessel_name,
         id=shipment_id,
         status="created",
-        created_at=datetime.now(),
+        created_at=datetime.now().isoformat(),
         tracking_number=tracking_number
     )
     
@@ -153,7 +156,7 @@ def track_shipment(tracking_number: str):
                 "location": "In transit",
                 "last_update": datetime.now().isoformat(),
                 "history": [
-                    {"status": "created", "time": s.created_at.isoformat()},
+                    {"status": "created", "time": s.created_at},
                     {"status": "documentation_complete", "time": datetime.now().isoformat()},
                     {"status": "in_transit", "time": datetime.now().isoformat()}
                 ]
