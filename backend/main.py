@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
-from typing import Optional, List
+from pydantic import BaseModel, ConfigDict
+from typing import Optional
 from datetime import datetime
 import uuid
 
@@ -30,6 +30,8 @@ class ShipmentCreate(BaseModel):
 
 
 class Shipment(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    
     exporter_name: str
     importer_name: str
     product: str
@@ -41,11 +43,6 @@ class Shipment(BaseModel):
     status: str
     created_at: datetime
     tracking_number: str
-    
-    class Config:
-        json_encoders = {
-            datetime: lambda v: v.isoformat()
-        }
 
 
 @app.get("/")
