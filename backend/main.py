@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 import uuid
@@ -36,11 +36,16 @@ class Shipment(BaseModel):
     quantity_cartons: int
     destination_country: str
     port_of_loading: str
-    vessel_name: Optional[str]
+    vessel_name: Optional[str] = None
     id: str
     status: str
     created_at: datetime
     tracking_number: str
+    
+    class Config:
+        json_encoders = {
+            datetime: lambda v: v.isoformat()
+        }
 
 
 @app.get("/")
