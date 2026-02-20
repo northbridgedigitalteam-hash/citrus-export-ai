@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citrus Export AI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 600;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .shipment-list {
+            margin-top: 20px;
+        }
+        
+        .shipment-item {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        
+        .status-created { background: #ffc107; color: #000; }
+        .status-transit { background: #17a2b8; color: #fff; }
+        .status-delivered { background: #28a745; color: #fff; }
+        
+        .tracking-result {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        
+        .document-preview {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .alert {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        
+        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🍊 Citrus Export AI</h1>
+            <p>Smart Freight Forwarding for South African Citrus</p>
+        </header>
+
+        <div class="grid">
+            <!-- Create Shipment Form -->
+            <div class="card">
+                <h2>📦 Create New Shipment</h2>
+                <form id="shipmentForm">
+                    <div class="form-group">
+                        <label>Exporter Name</label>
+                        <input type="text" id="exporterName" placeholder="e.g., Citrus Farms SA" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Importer Name</label>
+                        <input type="text" id="importerName" placeholder="e.g., Fresh Imports Ltd" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Product</label>
+                        <select id="product" required>
+                            <option value="">Select Product</option>
+                            <option value="oranges">Oranges</option>
+                            <option value="lemons">Lemons</option>
+                            <option value="grapefruit">Grapefruit</option>
+                            <option value="mandarins">Mandarins</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Quantity (Cartons)</label>
+                        <input type="number" id="quantity" placeholder="e.g., 1000" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Destination Country</label>
+                        <input type="text" id="destination" placeholder="e.g., China, Netherlands, USA" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Port of Loading</label>
+                        <select id="port">
+                            <option value="Cape Town">Cape Town</option>
+                            <option value="Durban">Durban</option>
+                            <option value="Port Elizabeth">Port Elizabeth</option>
+                        </select>
+                    </div>
+                    
+                    <button type="submit">Create Shipment</button>
+                </form>
+                <div id="shipmentMessage"></div>
+            </div>
+
+            <!-- Track Shipment -->
+            <div class="card">
+                <h2>🔍 Track Shipment</h2>
+                <div class="form-group">
+                    <label>Tracking Number</label>
+                    <input type="text" id="trackingNumber" placeholder="e.g., CIT-A1B2C3D4">
+                </div>
+                <button onclick="trackShipment()">Track Now</button>
+                <div id="trackingResult"></div>
+            </div>
+        </div>
+
+        <!-- Document Generator -->
+        <div class="card">
+            <h2>📄 Generate Documents</h2>
+            <div class="form-group">
+                <label>Shipment ID</label>
+                <input type="text" id="docShipmentId" placeholder="Enter shipment ID">
+            </div>
+            <button onclick="generateInvoice()">Generate Commercial Invoice</button>
+            <div id="documentResult"></div>
+        </div>
+
+        <!-- View All Shipments -->
+        <div class="card">
+            <h2>📋 All Shipments</h2>
+            <button onclick="loadShipments()">Refresh List</button>
+            <div id="shipmentList" class="shipment-list">
+                <p>Click "Refresh List" to load shipments</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API URL - we'll update this after deployment
+        const API_URL = 'http://localhost:8000';
+        
+        // Create Shipment
+        document.getElementById('shipmentForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const data = {
+                exporter_name: document.getElementById('exporterName').value,
+                importer_name: document.getElementById('importerName').value,
+                product: document.getElementById('product').value,
+                quantity_cartons: parseInt(document.getElementById('quantity').value),
+                destination_country: document.getElementById('destination').value,
+                port_of_loading: document.getElementById('port').value
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}/shipments/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('shipmentMessage').innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>Success!</strong><br>
+                        Tracking Number: <strong>${result.tracking_number}</strong><br>
+                        Shipment ID: ${result.id}<br>
+                        Status: ${result.status}
+                    </div>
+                `;
+                
+                document.getElementById('shipmentForm').reset();
+                
+            } catch (error) {
+                document.getElementById('shipmentMessage').innerHTML = `
+                    <div class="alert alert-error">Error creating shipment: ${error.message}</div>
+                `;
+            }
+        });
+        
+        // Track Shipment
+        async function trackShipment() {
+            const trackingNum = document.getElementById('trackingNumber').value;
+            if (!trackingNum) return alert('Please enter a tracking number');
+            
+            try {
+                const response = await fetch(`${API_URL}/track/${trackingNum}`);
+                const result = await response.json();
+                
+                document.getElementById('trackingResult').innerHTML = `
+                    <div class="tracking-result">
+                        <h3>Tracking: ${result.tracking_number}</h3>
+                        <p><strong>Status:</strong> <span class="status-badge status-${result.status}">${result.status}</span></p>
+                        <p><strong>Location:</strong> ${result.location}</p>
+                        <p><strong>Last Update:</strong> ${new Date(result.last_update).toLocaleString()}</p>
+                        <hr>
+                        <h4>History:</h4>
+                        ${result.history.map(h => `
+                            <p>• ${h.status} - ${new Date(h.time).toLocaleString()}</p>
+                        `).join('')}
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('trackingResult').innerHTML = `
+                    <div class="alert alert-error">Tracking error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        // Generate Commercial Invoice
+        async function generateInvoice() {
+            const shipmentId = document.getElementById('docShipmentId').value;
+            if (!shipmentId) return alert('Please enter a shipment ID');
+            
+            try {
+                const response = await fetch(`${API_URL}/documents/commercial-invoice/?shipment_id=${shipmentId}`, {
+                    method: 'POST'
+                });
+                
+                const result = await response.json();
+                
+                document.getElementById('documentResult').innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>Document Generated!</strong><br>
+                        Invoice Number: ${result.invoice_number}<br>
+                        Type: ${result.type}<br>
+                        Status: ${result.status}
+                    </div>
+                    <div class="document-preview">
+                        <h4>Preview:</h4>
+                        <pre>${JSON.stringify(result.content, null, 2)}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                document.getElementById('documentResult').innerHTML = `
+                    <div class="alert alert-error">Error: ${error.message}</div>
+                `;
+            }
+        }
+        
+        // Load All Shipments
+        async function loadShipments() {
+            try {
+                const response = await fetch(`${API_URL}/shipments/`);
+                const shipments = await response.json();
+                
+                if (shipments.length === 0) {
+                    document.getElementById('shipmentList').innerHTML = '<p>No shipments found</p>';
+                    return;
+                }
+                
+                document.getElementById('shipmentList').innerHTML = shipments.map(s => `
+                    <div class="shipment-item">
+                        <strong>${s.tracking_number}</strong> - ${s.product}<br>
+                        From: ${s.exporter_name} → To: ${s.importer_name}<br>
+                        Destination: ${s.destination_country} | Cartons: ${s.quantity_cartons}<br>
+                        <span class="status-badge status-${s.status}">${s.status}</span>
+                        <br><small>ID: ${s.id}</small>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                document.getElementById('shipmentList').innerHTML = `
+                    <div class="alert alert-error">Error loading: ${error.message}</div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>
